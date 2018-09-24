@@ -6,14 +6,28 @@ if (!WebAssembly.instantiateStreaming) {
   };
 }
 
+let editor = document.getElementById('editor');
+let htmlOut = document.getElementById('htmlout');
+
 const go = new Go();
-var mod, inst;
+let mod, inst;
 
 WebAssembly.instantiateStreaming(
-  fetch("./wasm/lib.wasm"),
-  go.importObject
+  fetch('./wasm/lib.wasm'),
+  go.importObject,
 ).then(async result => {
   mod = result.module;
   inst = result.instance;
   await go.run(inst);
 });
+
+editor.addEventListener(
+  'input',
+  () => {
+    console.log(editor.value);
+    updateMD(editor.value, "htmlout");
+  },
+  false,
+);
+
+
