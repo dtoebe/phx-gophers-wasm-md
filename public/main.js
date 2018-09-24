@@ -9,25 +9,24 @@ if (!WebAssembly.instantiateStreaming) {
 let editor = document.getElementById('editor');
 let htmlOut = document.getElementById('htmlout');
 
+editor.value = '# Hello Phoenix Gophers';
+
 const go = new Go();
 let mod, inst;
 
-WebAssembly.instantiateStreaming(
-  fetch('./wasm/lib.wasm'),
-  go.importObject,
-).then(async result => {
-  mod = result.module;
-  inst = result.instance;
-  await go.run(inst);
-});
-
-editor.addEventListener(
-  'input',
-  () => {
-    console.log(editor.value);
-    updateMD(editor.value, "htmlout");
-  },
-  false,
-);
-
-
+WebAssembly.instantiateStreaming(fetch('./wasm/lib.wasm'), go.importObject)
+  .then(result => {
+    return WebAssembly.instantiate(result.module, go.importObject);
+  })
+  .then(instance => {
+    go.run(instance);
+    editor.addEventListener(
+      'input',
+      () => {
+        console.log(editor.value);
+        updateMD(editor.value, 'htmlout');
+      },
+      false,
+    );
+    updateMD(editor.value, 'htmlout');
+  });
